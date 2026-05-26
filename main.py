@@ -52,7 +52,10 @@ except ImportError:
     SKLEARN_AVAILABLE = False
 
 
-DEFAULT_OUTPUT_DIR = "C:/Users/Admin/Desktop/Курсова/Макаренко/Project/output"
+DEFAULT_OUTPUT_DIR = os.environ.get(
+    "EKG_OUTPUT_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "output"),
+)
 os.makedirs(DEFAULT_OUTPUT_DIR, exist_ok=True)
 
 # ====================================================================================
