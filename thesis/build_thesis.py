@@ -188,7 +188,7 @@ class Builder:
         cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
         cap.paragraph_format.first_line_indent = Cm(0)
         cap.paragraph_format.space_after = Pt(8)
-        r = cap.add_run(f"Рисунок {num} – {caption}")
+        r = cap.add_run(f"Рисунок {num} — {caption}")
         r.font.name = FONT; r.font.size = Pt(SIZE)
         r._element.rPr.rFonts.set(qn("w:cs"), FONT)
 
@@ -198,10 +198,10 @@ class Builder:
         num = f"{_state['chapter']}.{_state['tab']}"
         cap = self.doc.add_paragraph()
         cap.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        cap.paragraph_format.first_line_indent = Cm(0)
+        cap.paragraph_format.first_line_indent = Cm(1.27)
         cap.paragraph_format.space_before = Pt(6)
         cap.paragraph_format.keep_with_next = True
-        r = cap.add_run(f"Таблиця {num} – {caption}")
+        r = cap.add_run(f"Таблиця {num} — {caption}")
         r.font.name = FONT; r.font.size = Pt(SIZE)
         r._element.rPr.rFonts.set(qn("w:cs"), FONT)
 
@@ -224,6 +224,22 @@ class Builder:
                 for row in t.rows:
                     row.cells[i].width = Cm(w)
         return t
+
+    def lead_para(self, label, text):
+        """Paragraph that opens with a bold lead-in label (as in the вступ example)."""
+        p = self.doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        pf = p.paragraph_format
+        pf.first_line_indent = Cm(1.27)
+        pf.line_spacing = 1.5
+        pf.space_after = Pt(0)
+        r1 = p.add_run(label + " ")
+        r1.font.name = FONT; r1.font.size = Pt(SIZE); r1.font.bold = True
+        r1._element.rPr.rFonts.set(qn("w:cs"), FONT)
+        r2 = p.add_run(text)
+        r2.font.name = FONT; r2.font.size = Pt(SIZE)
+        r2._element.rPr.rFonts.set(qn("w:cs"), FONT)
+        return p
 
     def set_chapter(self, label):
         _state["chapter"] = label
