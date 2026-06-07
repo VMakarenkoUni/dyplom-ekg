@@ -24,14 +24,21 @@ FIG_DIR = RUNS / "figures"
 FIG_DIR.mkdir(parents=True, exist_ok=True)
 
 AAMI = ("N", "S", "V", "F", "Q")
-MODELS = ("rule_based", "xgboost", "random_forest", "cnn", "cnn_bilstm", "hybrid")
+_MULTILEAD_KEYS = ("2lead", "2-lead", "multilead", "v3-2lead", "v2-2lead")
+MODELS = (
+    "rule_based", "xgboost", "random_forest", "cnn", "cnn_bilstm", "hybrid",
+    "xgboost_2lead", "cnn_2lead", "hybrid_2lead",
+)
 PRETTY = {
     "rule_based": "Rule-based (legacy)",
-    "xgboost": "XGBoost",
+    "xgboost": "XGBoost (1-lead)",
     "random_forest": "Random Forest",
-    "cnn": "1D-CNN",
+    "cnn": "1D-CNN (1-lead)",
     "cnn_bilstm": "CNN-BiLSTM",
-    "hybrid": "Hybrid (dual-stream)",
+    "hybrid": "Hybrid (1-lead)",
+    "xgboost_2lead": "XGBoost (2-lead)",
+    "cnn_2lead": "1D-CNN (2-lead)",
+    "hybrid_2lead": "Hybrid (2-lead)",
 }
 
 
@@ -39,12 +46,19 @@ def newest_eval(model: str) -> dict | None:
     if model == "rule_based":
         f = RUNS / "rule_based.json"
         return json.loads(f.read_text()) if f.exists() else None
-    folder = RUNS / model
+    is_multilead = model.endswith("_2lead")
+    base = model[: -len("_2lead")] if is_multilead else model
+    folder = RUNS / base
     if not folder.exists():
         return None
     cands = sorted(folder.glob("*/evaluation.json"),
                    key=lambda p: p.stat().st_mtime, reverse=True)
-    return json.loads(cands[0].read_text()) if cands else None
+    for c in cands:
+        if is_multilead and any(k in c.parent.name for k in _MULTILEAD_KEYS):
+            return json.loads(c.read_text())
+        if not is_multilead and not any(k in c.parent.name for k in _MULTILEAD_KEYS):
+            return json.loads(c.read_text())
+    return None
 
 
 def fig_confusion(model: str, report: dict) -> None:
@@ -72,23 +86,48 @@ def fig_confusion(model: str, report: dict) -> None:
 def fig_per_class_f1(reports: dict[str, dict]) -> None:
     models = [m for m in MODELS if m in reports]
     x = np.arange(len(AAMI))
-    width = 0.13
-    fig, ax = plt.subplots(figsize=(10, 5), dpi=140)
-    cmap = plt.get_cmap("tab10")
+    width = 0.85 / max(1, len(models))
+    fig, ax = plt.subplots(figsize=(12, 5), dpi=140)
+    cmap = plt.get_cmap("tab20")
     for i, model in enumerate(models):
         per = reports[model]["per_class"]
         f1 = [per.get(c, {}).get("f1-score", 0) for c in AAMI]
-        ax.bar(x + (i - len(models) / 2) * width + width / 2, f1, width,
-               label=PRETTY[model], color=cmap(i))
+        offset = (i - (len(models) - 1) / 2) * width
+        ax.bar(x + offset, f1, width, label=PRETTY[model], color=cmap(i))
     ax.set_xticks(x, AAMI)
     ax.set_ylabel("F1-score")
     ax.set_xlabel("AAMI class")
     ax.set_title("Per-class F1 across models — MIT-BIH inter-patient DS2")
     ax.set_ylim(0, 1)
-    ax.legend(loc="upper right", fontsize=9, ncol=2)
+    ax.legend(loc="upper right", fontsize=8, ncol=3)
     ax.grid(True, axis="y", alpha=0.3)
     fig.tight_layout()
     fig.savefig(FIG_DIR / "per_class_f1.png")
+    plt.close(fig)
+
+
+def fig_rare_class_recall(reports: dict[str, dict]) -> None:
+    """Dedicated chart for the rare-class story (S, V, F) — clinical headline."""
+    models = [m for m in MODELS if m in reports]
+    classes = ("S", "V", "F")
+    x = np.arange(len(classes))
+    width = 0.85 / max(1, len(models))
+    fig, ax = plt.subplots(figsize=(11, 5), dpi=140)
+    cmap = plt.get_cmap("tab20")
+    for i, model in enumerate(models):
+        per = reports[model]["per_class"]
+        rec = [per.get(c, {}).get("recall", 0) for c in classes]
+        offset = (i - (len(models) - 1) / 2) * width
+        ax.bar(x + offset, rec, width, label=PRETTY[model], color=cmap(i))
+    ax.set_xticks(x, classes)
+    ax.set_ylabel("Recall (sensitivity)")
+    ax.set_xlabel("AAMI class")
+    ax.set_title("Rare-class recall — the clinically important figure of merit")
+    ax.set_ylim(0, 1)
+    ax.legend(loc="upper left", fontsize=8, ncol=3)
+    ax.grid(True, axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(FIG_DIR / "rare_class_recall.png")
     plt.close(fig)
 
 
@@ -159,6 +198,8 @@ def main() -> None:
         print(f"  confusion_{m}.png")
     fig_per_class_f1(reports)
     print("  per_class_f1.png")
+    fig_rare_class_recall(reports)
+    print("  rare_class_recall.png")
     fig_acc_vs_macrof1(reports)
     print("  accuracy_vs_macrof1.png")
     fig_format_robustness()

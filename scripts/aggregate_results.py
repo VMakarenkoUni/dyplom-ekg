@@ -14,12 +14,23 @@ from pathlib import Path
 RUNS = Path("runs")
 AAMI = ("N", "S", "V", "F", "Q")
 
+# Run-id substrings that mark "multi-lead" variants of a base model.
+_MULTILEAD_KEYS = ("2lead", "2-lead", "multilead", "v3-2lead", "v2-2lead")
 
-def newest_report(model_dir: Path) -> dict | None:
+
+def newest_report(model_dir: Path, *, prefer_multilead: bool = False) -> dict | None:
     candidates = sorted(model_dir.glob("*/evaluation.json"),
                         key=lambda p: p.stat().st_mtime, reverse=True)
     if not candidates:
         return None
+    if prefer_multilead:
+        for c in candidates:
+            if any(k in c.parent.name for k in _MULTILEAD_KEYS):
+                return json.loads(c.read_text())
+    # Otherwise return the newest non-multilead checkpoint.
+    for c in candidates:
+        if not any(k in c.parent.name for k in _MULTILEAD_KEYS):
+            return json.loads(c.read_text())
     return json.loads(candidates[0].read_text())
 
 
@@ -31,11 +42,14 @@ def main() -> None:
     if rule:
         model_reports["rule_based"] = rule
     for model_dir in sorted(RUNS.iterdir()):
-        if not model_dir.is_dir() or model_dir.name in ("logs",):
+        if not model_dir.is_dir() or model_dir.name in ("logs", "figures"):
             continue
-        rep = newest_report(model_dir)
+        rep = newest_report(model_dir, prefer_multilead=False)
         if rep is not None:
             model_reports[model_dir.name] = rep
+        rep_ml = newest_report(model_dir, prefer_multilead=True)
+        if rep_ml is not None and rep_ml is not rep:
+            model_reports[f"{model_dir.name}_2lead"] = rep_ml
 
     fmt_xgb = json.loads((RUNS / "format_robustness_xgb_full.json").read_text()) \
         if (RUNS / "format_robustness_xgb_full.json").exists() else None
@@ -61,7 +75,10 @@ def main() -> None:
     lines.append("## Per-model overall metrics\n")
     lines.append("| Model           | Accuracy | Macro-F1 | N F1   | S F1   | V F1   | F F1   |")
     lines.append("|-----------------|---------:|---------:|-------:|-------:|-------:|-------:|")
-    order = ["rule_based", "xgboost", "random_forest", "cnn", "cnn_bilstm", "hybrid"]
+    order = [
+        "rule_based", "xgboost", "random_forest", "cnn", "cnn_bilstm", "hybrid",
+        "xgboost_2lead", "cnn_2lead", "hybrid_2lead",
+    ]
     for name in order:
         rep = model_reports.get(name)
         if rep is None:
