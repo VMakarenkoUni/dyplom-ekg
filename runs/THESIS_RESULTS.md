@@ -34,18 +34,32 @@ All numbers below are reproducible from the committed JSON reports under
 |---------------------|---------:|---------:|-------:|-------:|-------:|-------:|
 | Rule-based (legacy) |  0.8517  |  0.2396  | 0.9483 | 0.2488 | 0.0000 | 0.0000 |
 | Random Forest       |  0.9294  |  0.3739  | 0.9625 | 0.0139 | 0.8912 | 0.0018 |
-| XGBoost             |  0.8673  |  0.4167  | 0.9262 | 0.1948 | 0.8787 | 0.0836 |
+| XGBoost             |  0.8687  |  0.4184  | 0.9268 | 0.1859 | 0.8862 | 0.0930 |
+| **SVM-RBF**         |  0.8554  |  **0.4612**  | 0.9171 | **0.4325** | 0.8167 | 0.1396 |
 | 1D-CNN              |  0.6665  |  0.2732  | 0.7999 | 0.0454 | 0.5192 | 0.0016 |
 | CNN-BiLSTM          |  0.5049  |  0.2893  | 0.6451 | 0.0397 | 0.7535 | 0.0083 |
-| **Hybrid (dual-stream, novelty 1)** | 0.7940 | 0.3938 | 0.8815 | 0.1624 | 0.8709 | 0.0524 |
+| Hybrid (novelty 1)  |  0.7940  |  0.3938  | 0.8815 | 0.1624 | 0.8709 | 0.0524 |
 
 ### Two-lead (MLII + V1 / V5)
 
 | Model               | Accuracy | Macro-F1 | N F1   | S F1   | V F1   | F F1   |
 |---------------------|---------:|---------:|-------:|-------:|-------:|-------:|
 | XGBoost 2-lead      |  0.8607  |  0.4191  | 0.9209 | 0.1778 | 0.8603 | 0.1366 |
+| **SVM-RBF 2-lead**  |  0.8262  |  **0.4663**  | 0.8982 | **0.5409** | 0.7796 | 0.1129 |
 | 1D-CNN 2-lead       |  0.6059  |  0.3107  | 0.7391 | 0.0926 | 0.7148 | 0.0072 |
-| **Hybrid 2-lead**   |  0.7693  |  0.4028  | 0.8684 | 0.2234 | 0.8247 | 0.0948 |
+| Hybrid 2-lead       |  0.7693  |  0.4028  | 0.8684 | 0.2234 | 0.8247 | 0.0948 |
+
+The strongest macro-F1 on this benchmark is the SVM-RBF trained on the
+70-dim handcrafted feature vector (2 leads × 35 features each) using
+stratified class-balanced subsampling of DS1 (1,600 beats per class
+when available, ~4,600 beats total). The SVM trains in ~2 seconds and
+beats every deep model and even XGBoost on the balanced metric. This
+is a useful reality check: on a 90%-majority-class problem with strong
+hand-engineered features, the maximum-margin classifier with a smooth
+RBF kernel exploits the class structure better than gradient-boosted
+trees and far better than under-trained deep models. The S-class F1
+of 0.54 is the highest in the table and the F-class recall of 0.90
+ties the hybrid 2-lead's 0.89 best.
 
 Per-class recall on the three abnormal classes (the clinically important ones):
 
@@ -54,10 +68,12 @@ Per-class recall on the three abnormal classes (the clinically important ones):
 | Rule-based          | 0.3016   | 0.0000   | 0.0000   |
 | Random Forest       | 0.0071   | 0.8730   | 0.0026   |
 | XGBoost             | 0.1268   | 0.9516   | 0.5206   |
+| **SVM-RBF**         | 0.5199   | 0.9481   | 0.7397   |
 | 1D-CNN              | 0.0343   | 0.9155   | 0.0206   |
 | CNN-BiLSTM          | 0.1355   | 0.9224   | 0.1134   |
-| Hybrid              | 0.1715   | 0.9512   | 0.4304   |
+| Hybrid              | 0.1078   | 0.9404   | 0.4794   |
 | XGBoost 2-lead      | 0.1230   | 0.9429   | 0.8196   |
+| **SVM-RBF 2-lead**  | **0.5808** | 0.8882 | 0.8995   |
 | 1D-CNN 2-lead       | 0.2733   | 0.8584   | 0.0747   |
 | **Hybrid 2-lead**   | 0.2074   | 0.7714   | **0.8918** |
 

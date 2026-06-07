@@ -24,19 +24,22 @@ FIG_DIR = RUNS / "figures"
 FIG_DIR.mkdir(parents=True, exist_ok=True)
 
 AAMI = ("N", "S", "V", "F", "Q")
-_MULTILEAD_KEYS = ("2lead", "2-lead", "multilead", "v3-2lead", "v2-2lead")
+_MULTILEAD_KEYS = ("2lead", "2-lead", "multilead", "v3-2lead", "v2-2lead",
+                   "stratified-8k-2lead")
 MODELS = (
-    "rule_based", "xgboost", "random_forest", "cnn", "cnn_bilstm", "hybrid",
-    "xgboost_2lead", "cnn_2lead", "hybrid_2lead",
+    "rule_based", "xgboost", "random_forest", "svm", "cnn", "cnn_bilstm", "hybrid",
+    "xgboost_2lead", "svm_2lead", "cnn_2lead", "hybrid_2lead",
 )
 PRETTY = {
     "rule_based": "Rule-based (legacy)",
     "xgboost": "XGBoost (1-lead)",
     "random_forest": "Random Forest",
+    "svm": "SVM-RBF (1-lead)",
     "cnn": "1D-CNN (1-lead)",
     "cnn_bilstm": "CNN-BiLSTM",
     "hybrid": "Hybrid (1-lead)",
     "xgboost_2lead": "XGBoost (2-lead)",
+    "svm_2lead": "SVM-RBF (2-lead)",
     "cnn_2lead": "1D-CNN (2-lead)",
     "hybrid_2lead": "Hybrid (2-lead)",
 }

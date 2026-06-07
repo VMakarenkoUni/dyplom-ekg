@@ -92,8 +92,8 @@ def main() -> None:
     lines.append("| Model           | Accuracy | Macro-F1 | N F1   | S F1   | V F1   | F F1   |")
     lines.append("|-----------------|---------:|---------:|-------:|-------:|-------:|-------:|")
     order = [
-        "rule_based", "xgboost", "random_forest", "cnn", "cnn_bilstm", "hybrid",
-        "xgboost_2lead", "cnn_2lead", "hybrid_2lead",
+        "rule_based", "xgboost", "random_forest", "svm", "cnn", "cnn_bilstm", "hybrid",
+        "xgboost_2lead", "svm_2lead", "cnn_2lead", "hybrid_2lead",
     ]
     for name in order:
         rep = model_reports.get(name)
