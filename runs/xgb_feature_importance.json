@@ -1,0 +1,142 @@
+[
+  {
+    "feature": "p_zone_energy",
+    "gain": 113.26213836669922
+  },
+  {
+    "feature": "wv3_energy",
+    "gain": 69.13809204101562
+  },
+  {
+    "feature": "rr_pre",
+    "gain": 58.59162902832031
+  },
+  {
+    "feature": "rr_ratio",
+    "gain": 58.14019775390625
+  },
+  {
+    "feature": "ptp",
+    "gain": 36.62031555175781
+  },
+  {
+    "feature": "wv3_std",
+    "gain": 27.866090774536133
+  },
+  {
+    "feature": "wv2_std",
+    "gain": 22.92095184326172
+  },
+  {
+    "feature": "r_slope_post",
+    "gain": 20.012968063354492
+  },
+  {
+    "feature": "qrs_area",
+    "gain": 19.366411209106445
+  },
+  {
+    "feature": "pt_ratio",
+    "gain": 18.79241371154785
+  },
+  {
+    "feature": "wv0_std",
+    "gain": 18.245166778564453
+  },
+  {
+    "feature": "rr_post",
+    "gain": 17.171371459960938
+  },
+  {
+    "feature": "wv2_energy",
+    "gain": 16.993621826171875
+  },
+  {
+    "feature": "wv4_energy",
+    "gain": 15.038121223449707
+  },
+  {
+    "feature": "wv4_std",
+    "gain": 11.699909210205078
+  },
+  {
+    "feature": "skew",
+    "gain": 11.443156242370605
+  },
+  {
+    "feature": "r_slope_pre",
+    "gain": 10.480050086975098
+  },
+  {
+    "feature": "kurtosis",
+    "gain": 9.108870506286621
+  },
+  {
+    "feature": "rr_local_std",
+    "gain": 8.804769515991211
+  },
+  {
+    "feature": "r_amp",
+    "gain": 8.44505786895752
+  },
+  {
+    "feature": "qrs_width",
+    "gain": 8.328619003295898
+  },
+  {
+    "feature": "wv1_energy",
+    "gain": 7.928661346435547
+  },
+  {
+    "feature": "rr_local_mean",
+    "gain": 7.103212833404541
+  },
+  {
+    "feature": "wv0_mean",
+    "gain": 6.086310386657715
+  },
+  {
+    "feature": "wv1_std",
+    "gain": 5.964738368988037
+  },
+  {
+    "feature": "std",
+    "gain": 4.891048431396484
+  },
+  {
+    "feature": "wv4_mean",
+    "gain": 4.225679397583008
+  },
+  {
+    "feature": "zcr",
+    "gain": 3.9960122108459473
+  },
+  {
+    "feature": "t_zone_energy",
+    "gain": 3.417621374130249
+  },
+  {
+    "feature": "wv1_mean",
+    "gain": 2.895559549331665
+  },
+  {
+    "feature": "mean",
+    "gain": 2.3470637798309326
+  },
+  {
+    "feature": "wv0_energy",
+    "gain": 2.2571544647216797
+  },
+  {
+    "feature": "energy",
+    "gain": 1.3482812643051147
+  },
+  {
+    "feature": "wv2_mean",
+    "gain": 0.9395177960395813
+  },
+  {
+    "feature": "wv3_mean",
+    "gain": 0.8673744797706604
+  }
+]
