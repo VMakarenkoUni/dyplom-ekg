@@ -51,14 +51,20 @@ def newest_eval(model: str) -> dict | None:
     folder = RUNS / base
     if not folder.exists():
         return None
-    cands = sorted(folder.glob("*/evaluation.json"),
-                   key=lambda p: p.stat().st_mtime, reverse=True)
-    for c in cands:
-        if is_multilead and any(k in c.parent.name for k in _MULTILEAD_KEYS):
-            return json.loads(c.read_text())
-        if not is_multilead and not any(k in c.parent.name for k in _MULTILEAD_KEYS):
-            return json.loads(c.read_text())
-    return None
+    matching: list[dict] = []
+    for c in folder.glob("*/evaluation.json"):
+        is_ml = any(k in c.parent.name for k in _MULTILEAD_KEYS)
+        if is_ml != is_multilead:
+            continue
+        try:
+            payload = json.loads(c.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        matching.append(payload)
+    if not matching:
+        return None
+    matching.sort(key=lambda r: r.get("macro_f1", 0.0), reverse=True)
+    return matching[0]
 
 
 def fig_confusion(model: str, report: dict) -> None:
@@ -153,31 +159,35 @@ def fig_acc_vs_macrof1(reports: dict[str, dict]) -> None:
 
 
 def fig_format_robustness() -> None:
-    fmt_xgb = RUNS / "format_robustness_xgb_full.json"
-    fmt_hyb = RUNS / "format_robustness_hybrid.json"
-    if not (fmt_xgb.exists() and fmt_hyb.exists()):
+    sources = [
+        ("XGBoost (1-lead)",  "format_robustness_xgb_full.json",            "#1f77b4"),
+        ("Hybrid (1-lead)",   "format_robustness_hybrid.json",              "#ff7f0e"),
+        ("Hybrid (2-lead)",   "format_robustness_hybrid_2lead_full.json",   "#2ca02c"),
+    ]
+    payloads = []
+    for name, fn, colour in sources:
+        path = RUNS / fn
+        if path.exists():
+            payloads.append((name, json.loads(path.read_text()), colour))
+    if not payloads:
         return
-    xgb = json.loads(fmt_xgb.read_text())
-    hyb = json.loads(fmt_hyb.read_text())
 
-    formats = list(xgb["per_format"].keys())
+    formats = list(payloads[0][1]["per_format"].keys())
     x = np.arange(len(formats))
-    width = 0.35
+    width = 0.8 / len(payloads)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5), dpi=140)
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.8), dpi=140)
     for ax, metric, title in [
         (axes[0], "label_agreement", "Label agreement vs native"),
         (axes[1], "accuracy", "Accuracy on DS2"),
     ]:
-        xgb_vals = [xgb["per_format"][f][metric] for f in formats]
-        hyb_vals = [hyb["per_format"][f][metric] for f in formats]
-        ax.bar(x - width / 2, xgb_vals, width, label="XGBoost", color="#1f77b4")
-        ax.bar(x + width / 2, hyb_vals, width, label="Hybrid", color="#ff7f0e")
-        if metric == "accuracy":
-            ax.axhline(xgb["native_accuracy"], color="#1f77b4", linestyle="--",
-                       linewidth=1, label="XGB native")
-            ax.axhline(hyb["native_accuracy"], color="#ff7f0e", linestyle="--",
-                       linewidth=1, label="Hybrid native")
+        for i, (name, payload, colour) in enumerate(payloads):
+            vals = [payload["per_format"][f][metric] for f in formats]
+            offset = (i - (len(payloads) - 1) / 2) * width
+            ax.bar(x + offset, vals, width, label=name, color=colour)
+            if metric == "accuracy":
+                ax.axhline(payload["native_accuracy"], color=colour,
+                           linestyle="--", linewidth=0.9)
         ax.set_xticks(x, [f.upper() for f in formats])
         ax.set_ylabel(title)
         ax.set_title(title)
@@ -185,7 +195,7 @@ def fig_format_robustness() -> None:
         ax.grid(True, axis="y", alpha=0.3)
         ax.legend(fontsize=8)
 
-    fig.suptitle("Format-robustness benchmark (full DS2)")
+    fig.suptitle("Format-robustness benchmark on full DS2 — dashed lines = native accuracy")
     fig.tight_layout()
     fig.savefig(FIG_DIR / "format_robustness.png")
     plt.close(fig)

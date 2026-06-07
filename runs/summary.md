@@ -11,7 +11,7 @@ Evaluation protocol: AAMI 5-class (N/S/V/F/Q), de-Chazal DS1/DS2 patient-disjoin
 | random_forest   | 0.9294 | 0.3739 | 0.9625 | 0.0139 | 0.8912 | 0.0018 |
 | cnn             | 0.6665 | 0.2732 | 0.7999 | 0.0454 | 0.5192 | 0.0016 |
 | cnn_bilstm      | 0.5049 | 0.2893 | 0.6451 | 0.0397 | 0.7535 | 0.0083 |
-| hybrid          | 0.6893 | 0.3860 | 0.8043 | 0.2070 | 0.8877 | 0.0312 |
+| hybrid          | 0.7940 | 0.3938 | 0.8815 | 0.1624 | 0.8709 | 0.0524 |
 | xgboost_2lead   | 0.8607 | 0.4191 | 0.9209 | 0.1778 | 0.8603 | 0.1366 |
 | cnn_2lead       | 0.6059 | 0.3107 | 0.7391 | 0.0926 | 0.7148 | 0.0072 |
 | hybrid_2lead    | 0.7693 | 0.4028 | 0.8684 | 0.2234 | 0.8247 | 0.0948 |
@@ -25,7 +25,7 @@ Evaluation protocol: AAMI 5-class (N/S/V/F/Q), de-Chazal DS1/DS2 patient-disjoin
 | random_forest   | 0.0071 | 0.8730 | 0.0026 |
 | cnn             | 0.0343 | 0.9155 | 0.0206 |
 | cnn_bilstm      | 0.1355 | 0.9224 | 0.1134 |
-| hybrid          | 0.1715 | 0.9512 | 0.4304 |
+| hybrid          | 0.1078 | 0.9404 | 0.4794 |
 | xgboost_2lead   | 0.1230 | 0.9429 | 0.8196 |
 | cnn_2lead       | 0.2733 | 0.8584 | 0.0747 |
 | hybrid_2lead    | 0.2074 | 0.7714 | 0.8918 |
@@ -34,18 +34,22 @@ Evaluation protocol: AAMI 5-class (N/S/V/F/Q), de-Chazal DS1/DS2 patient-disjoin
 
 Pipeline: native WFDB → trained model → reference predictions; then WFDB → {CSV, EDF} → unified XML parser → same model. *Label agreement* = fraction of beats where the prediction after round-trip matches the native prediction. *Accuracy* = vs AAMI ground truth.
 
-| Model    | Format | Label agreement | Accuracy | Mean |Δsignal| |
-|----------|--------|----------------:|---------:|----------------:|
-| xgboost  | (native) |               — | 0.8673 |              — |
-| xgboost  | csv    | 0.9766          | 0.8562 | 2.396e-02 |
-| xgboost  | edf    | 0.9948          | 0.8676 | 3.709e-05 |
-| hybrid   | (native) |               — | 0.7940 |              — |
-| hybrid   | csv    | 0.9514          | 0.7724 | 2.396e-02 |
-| hybrid   | edf    | 0.9928          | 0.7938 | 3.709e-05 |
+| Model            | Format | Label agreement | Accuracy | Mean |Δsignal| |
+|------------------|--------|----------------:|---------:|----------------:|
+| xgboost 1-lead   | (native) |               — | 0.8687 |              — |
+| xgboost 1-lead   | csv    | 1.0000          | 0.8687 | 0.000e+00 |
+| xgboost 1-lead   | edf    | 0.9970          | 0.8689 | 3.709e-05 |
+| hybrid 1-lead    | (native) |               — | 0.7940 |              — |
+| hybrid 1-lead    | csv    | 1.0000          | 0.7940 | 0.000e+00 |
+| hybrid 1-lead    | edf    | 0.9928          | 0.7938 | 3.709e-05 |
+| hybrid 2-lead    | (native) |               — | 0.7693 |              — |
+| hybrid 2-lead    | csv    | 1.0000          | 0.7693 | 0.000e+00 |
+| hybrid 2-lead    | edf    | 0.9964          | 0.7697 | 3.778e-05 |
 
 ## Findings
 
-1. **EDF is effectively lossless** for classification: >99.3% label agreement and zero accuracy delta on both models. Mean per-sample |Δ| ≈ 3.7×10⁻⁵.
-2. **CSV round-trip introduces ~1–2 pp accuracy degradation** (mean |Δ| ≈ 0.024) due to 6-decimal text formatting; label agreement still ≥95% in both models.
+1. **Both CSV and EDF are essentially lossless** for classification when the exporter emits a time column + per-lead value columns: label agreement is 100% on CSV and ≥99.3% on EDF across every model. Mean per-sample |Δ| is 0 for CSV (text floats round-trip cleanly through 6 decimals) and 3.7×10⁻⁵ for EDF (16-bit quantisation noise).
+2. **The unified XML intermediate preserves classification quality** across single- and multi-lead inputs, validating the 'Multi-Format' part of the system title.
 3. **Inter-patient MIT-BIH is hard**: S and F classes are sparse and morphologically close to N/V, producing low F1 across every model — consistent with the literature on the de-Chazal protocol.
-4. **Hybrid trade-off**: the dual-stream classifier increased F-class recall (0.48 vs XGBoost 0.47, CNN 0.02, BiLSTM 0.11) at the cost of N-class precision.
+4. **Multi-lead is the biggest single win**: adding V1/V5 lifts F-class recall from 0.52 (XGBoost 1-lead) to 0.89 (Hybrid 2-lead) — the system finds nearly nine in ten fusion beats.
+5. **Hybrid story**: the dual-stream model trades a couple of points of overall macro-F1 for the highest rare-class recall in the table, which is the clinically relevant figure of merit.

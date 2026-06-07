@@ -149,12 +149,15 @@ def benchmark_format(
     output: Optional[Path] = typer.Option(None, "--output", "-o"),
     formats: list[str] = typer.Option(["csv", "edf"], "--format"),
     max_records: Optional[int] = typer.Option(None, "--max-records"),
+    channels: list[int] = typer.Option([0], "--channel",
+        help="0-indexed leads; pass --channel 0 --channel 1 for multi-lead models"),
 ) -> None:
     """Round-trip MIT-BIH DS2 through each format and measure accuracy drift."""
     from ekg.benchmark.format_robustness import run_format_robustness
     results = run_format_robustness(
         model_path, data_dir=data_dir, cache_dir=cache_dir,
         target_formats=formats, output_path=output, max_records=max_records,
+        channels=channels,
     )
     summary = {
         "native_accuracy": results["native_accuracy"],

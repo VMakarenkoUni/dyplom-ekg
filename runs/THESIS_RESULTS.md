@@ -129,13 +129,15 @@ References:
 
 ## Multi-format robustness benchmark — novelty 2
 
-(see `runs/figures/format_robustness.png` and `runs/format_robustness_{xgb_full,hybrid}.json`)
+(see `runs/figures/format_robustness.png`, `runs/figures/roundtrip_waveforms.png`,
+and `runs/format_robustness_*.json`)
 
 Pipeline: each DS2 record is loaded natively (WFDB) and classified to
 produce a reference prediction. The same signal is then exported to a
-candidate format, re-ingested through the unified `ekg.parsers`
-pipeline, re-segmented around the same physical R-peak indices, and
-re-classified. We report:
+candidate format (CSV with explicit time + per-lead value columns, or
+EDF+ with 16-bit linear quantisation), re-ingested through the unified
+`ekg.parsers` pipeline, re-segmented around the same physical R-peak
+indices, and re-classified. We report:
 
 - **Label agreement** = fraction of beats whose post-round-trip
   prediction matches the native-prediction reference.
@@ -143,16 +145,19 @@ re-classified. We report:
 - **Mean |Δsignal|** = average per-sample absolute difference between the
   native float32 signal and the signal recovered from the unified XML.
 
-Full DS2 (22 records, 44,957–49,692 beats per format):
+Full DS2 (22 records, 49,692 beats per format):
 
-| Model    | Format   | Label agreement | Accuracy | Mean \|Δsignal\| |
-|----------|----------|----------------:|---------:|-----------------:|
-| XGBoost  | native   |       —         | 0.8673   |        —         |
-| XGBoost  | CSV→XML  | 0.9766          | 0.8562   | 2.40 × 10⁻²      |
-| XGBoost  | EDF→XML  | 0.9948          | 0.8676   | 3.71 × 10⁻⁵      |
-| Hybrid   | native   |       —         | 0.7940   |        —         |
-| Hybrid   | CSV→XML  | 0.9514          | 0.7724   | 2.40 × 10⁻²      |
-| Hybrid   | EDF→XML  | 0.9928          | 0.7938   | 3.71 × 10⁻⁵      |
+| Model           | Format   | Label agreement | Accuracy | Mean \|Δsignal\| |
+|-----------------|----------|----------------:|---------:|-----------------:|
+| XGBoost 1-lead  | native   |        —        | 0.8687   |        —         |
+| XGBoost 1-lead  | CSV→XML  | **1.0000**      | 0.8687   | 0.000            |
+| XGBoost 1-lead  | EDF→XML  | 0.9970          | 0.8689   | 3.71 × 10⁻⁵      |
+| Hybrid 1-lead   | native   |        —        | 0.7940   |        —         |
+| Hybrid 1-lead   | CSV→XML  | **1.0000**      | 0.7940   | 0.000            |
+| Hybrid 1-lead   | EDF→XML  | 0.9928          | 0.7938   | 3.71 × 10⁻⁵      |
+| Hybrid 2-lead   | native   |        —        | 0.7693   |        —         |
+| Hybrid 2-lead   | CSV→XML  | **1.0000**      | 0.7693   | 0.000            |
+| Hybrid 2-lead   | EDF→XML  | 0.9964          | 0.7697   | 3.78 × 10⁻⁵      |
 
 ### What this measures and why it matters
 
@@ -161,24 +166,33 @@ classification quality survives the conversion*. Almost no ECG-ML paper
 quantifies this because they assume one input format (typically WFDB).
 Our benchmark establishes three findings:
 
-1. **EDF is effectively lossless for classification.** 16-bit linear
-   quantisation preserves the signal to ~10⁻⁵ per sample, and label
-   agreement against native predictions is ≥99.3% for both models.
-   Accuracy delta is zero within rounding (XGBoost actually moves
-   +0.00029 due to a handful of beats flipping near the decision
-   boundary).
-2. **CSV introduces measurable but bounded drift.** The legacy CSV
-   exporter writes values with 6 decimal places, producing mean per-sample
-   error ~2×10⁻² (≈ 100× larger than EDF). This propagates to a 1.1–2.2 pp
-   accuracy drop and 5% disagreement on the hybrid model — the hybrid is
-   more sensitive because the CNN stream is sensitive to small waveform
-   perturbations, while the XGBoost stream depends only on extracted
-   features that are more robust to floating-point noise.
-3. **Practical recommendation.** For a clinical pipeline that ingests
-   heterogeneous ECG formats and passes them through a single ML
-   classifier, EDF is the preferred interchange format. CSV is
-   acceptable when the precision is set explicitly to at least 8 decimals
-   in the exporter (this would close most of the gap).
+1. **CSV → unified XML is bit-exact for classification.** When the
+   exporter includes a time column and one column per lead, 6-decimal
+   text floats round-trip with zero mean absolute difference on
+   MIT-BIH-scale signals (~1 mV peak). Label agreement against native
+   predictions is **100% for every model on every record** — single- and
+   multi-lead alike. Accuracy on DS2 is byte-identical to the native
+   number.
+2. **EDF → unified XML is near-lossless** (within 16-bit quantisation
+   noise: mean |Δ| ≈ 3.7×10⁻⁵, label agreement ≥99.3% across all
+   models). The handful of beats that flip do so at the decision
+   boundary and can change accuracy by ±0.0003 either way — within
+   stochastic noise.
+3. **The two novelty claims are coherent.** The hybrid 2-lead model is
+   the most sensitive of the three because its CNN stream reacts to
+   per-sample perturbations, but even it retains 99.6% label agreement
+   on EDF and 100% on CSV. So a clinical pipeline that ingests
+   heterogeneous ECG file formats and routes them through one ML
+   classifier can choose either CSV or EDF as the storage format
+   without measurable degradation.
+
+A note on a previous-version artifact: an earlier iteration of the
+benchmark used a minimal single-column CSV exporter (no time column).
+The legacy CSV parser's column-detection heuristic mis-classified the
+single value column as a time column and the round-trip lost beats,
+giving the appearance of a 1–2 pp accuracy drop. The corrected
+exporter (with explicit `time` column) eliminates that artifact and is
+what the table above reports.
 
 ## How to reproduce
 
