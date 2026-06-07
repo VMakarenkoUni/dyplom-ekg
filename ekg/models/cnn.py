@@ -24,10 +24,11 @@ def _require_torch() -> None:
 
 
 class _CNN1D(nn.Module if TORCH_AVAILABLE else object):
-    def __init__(self, n_classes: int = 5, window_len: int = 260) -> None:
+    def __init__(self, n_classes: int = 5, window_len: int = 260,
+                 in_channels: int = 1) -> None:
         super().__init__()
         self.features = nn.Sequential(
-            nn.Conv1d(1, 16, kernel_size=7, padding=3), nn.BatchNorm1d(16), nn.ReLU(),
+            nn.Conv1d(in_channels, 16, kernel_size=7, padding=3), nn.BatchNorm1d(16), nn.ReLU(),
             nn.MaxPool1d(2),
             nn.Conv1d(16, 32, kernel_size=5, padding=2), nn.BatchNorm1d(32), nn.ReLU(),
             nn.MaxPool1d(2),
@@ -58,23 +59,32 @@ class CNN1DClassifier(BaseClassifier):
     name = "cnn"
 
     def __init__(self, *, window_len: int = 260, batch_size: int = 256,
-                 epochs: int = 25, lr: float = 1e-3, device: str | None = None) -> None:
+                 epochs: int = 25, lr: float = 1e-3, device: str | None = None,
+                 in_channels: int = 1) -> None:
         _require_torch()
         self._kwargs = dict(window_len=window_len, batch_size=batch_size,
-                            epochs=epochs, lr=lr)
+                            epochs=epochs, lr=lr, in_channels=in_channels)
         self.window_len = window_len
         self.batch_size = batch_size
         self.epochs = epochs
         self.lr = lr
+        self.in_channels = in_channels
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        self.net = _CNN1D(n_classes=self.n_classes, window_len=window_len).to(self.device)
+        self.net = _CNN1D(n_classes=self.n_classes, window_len=window_len,
+                          in_channels=in_channels).to(self.device)
 
     def init_kwargs(self) -> dict[str, Any]:
         return dict(self._kwargs)
 
     def _loader(self, windows: np.ndarray, labels: np.ndarray | None = None,
                 shuffle: bool = False) -> "DataLoader":
-        x = torch.from_numpy(windows.astype(np.float32)).unsqueeze(1)  # (N, 1, L)
+        w = windows.astype(np.float32)
+        if w.ndim == 2:
+            x = torch.from_numpy(w).unsqueeze(1)  # (N, 1, L)
+        elif w.ndim == 3:
+            x = torch.from_numpy(w)               # (N, C, L) — multi-channel
+        else:
+            raise ValueError(f"unsupported window ndim {w.ndim}")
         if labels is None:
             ds = TensorDataset(x)
         else:
