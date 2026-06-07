@@ -14,6 +14,8 @@ env/
 output/
 runs/**/model.joblib
 data/
+cache/
+logs/
 *.xml
 *.xlsx
 !tests/**/*.xml
