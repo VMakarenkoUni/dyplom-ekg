@@ -1833,10 +1833,19 @@ class EdfECGConverter(BaseECGConverter):
     def _process_edf_signals(self, f):
         """Process EDF signals"""
         n_signals = f.signals_in_file
+        # pyedflib renamed getSignalLabel(i) → getLabel(i) and added the bulk
+        # getSignalLabels() helper. Use whichever the installed version exposes.
+        if hasattr(f, "getSignalLabel"):
+            _get_label = f.getSignalLabel
+        elif hasattr(f, "getLabel"):
+            _get_label = f.getLabel
+        else:
+            _labels = list(f.getSignalLabels())
+            _get_label = lambda i: _labels[i]
 
         for i in range(n_signals):
             # Get signal info
-            label = f.getSignalLabel(i)
+            label = _get_label(i)
             dimension = f.getPhysicalDimension(i)
             sample_rate = f.getSampleFrequency(i)
 

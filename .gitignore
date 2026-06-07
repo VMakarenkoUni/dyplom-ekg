@@ -12,7 +12,7 @@ env/
 
 # Project artifacts
 output/
-runs/
+runs/**/model.joblib
 data/
 *.xml
 *.xlsx

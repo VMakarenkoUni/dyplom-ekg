@@ -1,0 +1,320 @@
+{
+  "model": "runs/hybrid/20260607-085050/model.joblib",
+  "n_records": 22,
+  "native_accuracy": 0.7940312323915318,
+  "native_total_beats": 49692,
+  "per_format": {
+    "csv": {
+      "n_records": 20,
+      "n_beats": 44957,
+      "label_agreement": 0.951375759058656,
+      "accuracy": 0.7723602553551171,
+      "mean_signal_abs_diff": 0.023961892211809756,
+      "per_record": [
+        {
+          "record_id": "100",
+          "n": 2271,
+          "agreement": 2270,
+          "accuracy": 2268,
+          "signal_diff_mean": 0.01962929219007492
+        },
+        {
+          "record_id": "103",
+          "n": 2083,
+          "agreement": 2081,
+          "accuracy": 2077,
+          "signal_diff_mean": 0.025479551404714584
+        },
+        {
+          "record_id": "105",
+          "n": 2572,
+          "agreement": 2425,
+          "accuracy": 2276,
+          "signal_diff_mean": 0.024950601160526276
+        },
+        {
+          "record_id": "111",
+          "n": 2124,
+          "agreement": 2054,
+          "accuracy": 1959,
+          "signal_diff_mean": 0.01940477080643177
+        },
+        {
+          "record_id": "113",
+          "n": 1794,
+          "agreement": 1794,
+          "accuracy": 1792,
+          "signal_diff_mean": 0.028840385377407074
+        },
+        {
+          "record_id": "117",
+          "n": 1534,
+          "agreement": 1362,
+          "accuracy": 987,
+          "signal_diff_mean": 0.017180385068058968
+        },
+        {
+          "record_id": "121",
+          "n": 1862,
+          "agreement": 1858,
+          "accuracy": 1838,
+          "signal_diff_mean": 0.01252884604036808
+        },
+        {
+          "record_id": "123",
+          "n": 1517,
+          "agreement": 1514,
+          "accuracy": 1511,
+          "signal_diff_mean": 0.023372061550617218
+        },
+        {
+          "record_id": "210",
+          "n": 2648,
+          "agreement": 2578,
+          "accuracy": 2514,
+          "signal_diff_mean": 0.019063230603933334
+        },
+        {
+          "record_id": "212",
+          "n": 2747,
+          "agreement": 2741,
+          "accuracy": 2734,
+          "signal_diff_mean": 0.032965198159217834
+        },
+        {
+          "record_id": "213",
+          "n": 3250,
+          "agreement": 3124,
+          "accuracy": 501,
+          "signal_diff_mean": 0.04889484494924545
+        },
+        {
+          "record_id": "214",
+          "n": 2260,
+          "agreement": 2110,
+          "accuracy": 2105,
+          "signal_diff_mean": 0.027452370151877403
+        },
+        {
+          "record_id": "219",
+          "n": 2154,
+          "agreement": 2037,
+          "accuracy": 1860,
+          "signal_diff_mean": 0.025572845712304115
+        },
+        {
+          "record_id": "221",
+          "n": 2427,
+          "agreement": 2322,
+          "accuracy": 2248,
+          "signal_diff_mean": 0.023231107741594315
+        },
+        {
+          "record_id": "222",
+          "n": 2481,
+          "agreement": 2254,
+          "accuracy": 1908,
+          "signal_diff_mean": 0.018299061805009842
+        },
+        {
+          "record_id": "228",
+          "n": 2053,
+          "agreement": 1942,
+          "accuracy": 1741,
+          "signal_diff_mean": 0.02090255357325077
+        },
+        {
+          "record_id": "231",
+          "n": 1570,
+          "agreement": 1565,
+          "accuracy": 1565,
+          "signal_diff_mean": 0.020616430789232254
+        },
+        {
+          "record_id": "232",
+          "n": 1780,
+          "agreement": 1746,
+          "accuracy": 411,
+          "signal_diff_mean": 0.014547229744493961
+        },
+        {
+          "record_id": "233",
+          "n": 3077,
+          "agreement": 2820,
+          "accuracy": 1120,
+          "signal_diff_mean": 0.03216623142361641
+        },
+        {
+          "record_id": "234",
+          "n": 2753,
+          "agreement": 2174,
+          "accuracy": 1308,
+          "signal_diff_mean": 0.024140845984220505
+        }
+      ]
+    },
+    "edf": {
+      "n_records": 22,
+      "n_beats": 49692,
+      "label_agreement": 0.992815744989133,
+      "accuracy": 0.7937897448281414,
+      "mean_signal_abs_diff": 3.70850882311722e-05,
+      "per_record": [
+        {
+          "record_id": "100",
+          "n": 2271,
+          "agreement": 2271,
+          "accuracy": 2268,
+          "signal_diff_mean": 2.759511880867649e-05
+        },
+        {
+          "record_id": "103",
+          "n": 2083,
+          "agreement": 2083,
+          "accuracy": 2079,
+          "signal_diff_mean": 4.9595477321418e-05
+        },
+        {
+          "record_id": "105",
+          "n": 2572,
+          "agreement": 2563,
+          "accuracy": 2379,
+          "signal_diff_mean": 4.8563666496193036e-05
+        },
+        {
+          "record_id": "111",
+          "n": 2124,
+          "agreement": 2116,
+          "accuracy": 1950,
+          "signal_diff_mean": 3.73833863704931e-05
+        },
+        {
+          "record_id": "113",
+          "n": 1794,
+          "agreement": 1794,
+          "accuracy": 1792,
+          "signal_diff_mean": 3.023982935701497e-05
+        },
+        {
+          "record_id": "117",
+          "n": 1534,
+          "agreement": 1524,
+          "accuracy": 974,
+          "signal_diff_mean": 2.9119697501300834e-05
+        },
+        {
+          "record_id": "121",
+          "n": 1862,
+          "agreement": 1862,
+          "accuracy": 1839,
+          "signal_diff_mean": 3.916038986062631e-05
+        },
+        {
+          "record_id": "123",
+          "n": 1517,
+          "agreement": 1517,
+          "accuracy": 1514,
+          "signal_diff_mean": 3.903956530848518e-05
+        },
+        {
+          "record_id": "200",
+          "n": 2600,
+          "agreement": 2582,
+          "accuracy": 2426,
+          "signal_diff_mean": 3.864135214826092e-05
+        },
+        {
+          "record_id": "202",
+          "n": 2135,
+          "agreement": 2122,
+          "accuracy": 1739,
+          "signal_diff_mean": 4.2569365177769214e-05
+        },
+        {
+          "record_id": "210",
+          "n": 2648,
+          "agreement": 2639,
+          "accuracy": 2533,
+          "signal_diff_mean": 3.569430555216968e-05
+        },
+        {
+          "record_id": "212",
+          "n": 2747,
+          "agreement": 2746,
+          "accuracy": 2739,
+          "signal_diff_mean": 3.389445919310674e-05
+        },
+        {
+          "record_id": "213",
+          "n": 3250,
+          "agreement": 3234,
+          "accuracy": 519,
+          "signal_diff_mean": 4.918285776511766e-05
+        },
+        {
+          "record_id": "214",
+          "n": 2260,
+          "agreement": 2243,
+          "accuracy": 2049,
+          "signal_diff_mean": 4.2307623516535386e-05
+        },
+        {
+          "record_id": "219",
+          "n": 2154,
+          "agreement": 2125,
+          "accuracy": 1843,
+          "signal_diff_mean": 4.2849864257732406e-05
+        },
+        {
+          "record_id": "221",
+          "n": 2427,
+          "agreement": 2423,
+          "accuracy": 2319,
+          "signal_diff_mean": 3.423575253691524e-05
+        },
+        {
+          "record_id": "222",
+          "n": 2481,
+          "agreement": 2434,
+          "accuracy": 1984,
+          "signal_diff_mean": 2.1527859644265845e-05
+        },
+        {
+          "record_id": "228",
+          "n": 2053,
+          "agreement": 2046,
+          "accuracy": 1806,
+          "signal_diff_mean": 4.044914385303855e-05
+        },
+        {
+          "record_id": "231",
+          "n": 1570,
+          "agreement": 1569,
+          "accuracy": 1565,
+          "signal_diff_mean": 2.5325423848698847e-05
+        },
+        {
+          "record_id": "232",
+          "n": 1780,
+          "agreement": 1775,
+          "accuracy": 412,
+          "signal_diff_mean": 1.798076118575409e-05
+        },
+        {
+          "record_id": "233",
+          "n": 3077,
+          "agreement": 3019,
+          "accuracy": 1102,
+          "signal_diff_mean": 4.90764832647983e-05
+        },
+        {
+          "record_id": "234",
+          "n": 2753,
+          "agreement": 2648,
+          "accuracy": 1614,
+          "signal_diff_mean": 4.143955811741762e-05
+        }
+      ]
+    }
+  }
+}
