@@ -144,7 +144,7 @@ class Builder:
             pf.first_line_indent = Cm(1.27)
             pf.line_spacing = 1.5
             pf.space_after = Pt(0)
-            r = p.add_run(("– " if dash else "") + it)
+            r = p.add_run(("— " if dash else "") + it)
             r.font.name = FONT; r.font.size = Pt(SIZE)
             r._element.rPr.rFonts.set(qn("w:cs"), FONT)
 
@@ -245,6 +245,23 @@ class Builder:
         _state["chapter"] = label
         _state["fig"] = 0
         _state["tab"] = 0
+
+    def appendix_heading(self, letter, title):
+        """Two-line appendix heading per §3.16: 'ДОДАТОК X' then the title."""
+        self.set_chapter(letter)
+        h = self.doc.add_heading(level=1)
+        h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        h.paragraph_format.page_break_before = True
+        h.paragraph_format.first_line_indent = Cm(0)
+        r1 = h.add_run("ДОДАТОК " + letter)
+        r2 = h.add_run()
+        r2.add_break()
+        r3 = h.add_run(title)
+        for r in (r1, r3):
+            r.font.name = FONT; r.font.size = Pt(SIZE); r.font.bold = True
+            r.font.color.rgb = RGBColor(0, 0, 0)
+            r._element.rPr.rFonts.set(qn("w:cs"), FONT)
+        return h
 
     def pagebreak(self):
         self.doc.add_page_break()
