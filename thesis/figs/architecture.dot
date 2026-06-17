@@ -1,0 +1,49 @@
+digraph arch {
+  rankdir=TB;
+  graph [splines=polyline, nodesep=0.45, ranksep=0.55, fontname="DejaVu Sans", bgcolor="white"];
+  node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=12, margin="0.16,0.09", penwidth=1.3];
+  edge [color="#444444", arrowsize=0.85, penwidth=1.2];
+
+  input  [label="Вхідні файли ЕКГ:  DICOM · WFDB · EDF/BDF · HL7 aECG · SCP-ECG · CSV · XML",
+          fillcolor="#f3f0e8", color="#8a7a4a", width=9];
+  detect [label="Детектор формату (detect.py)", fillcolor="#eef3fb", color="#2c5d9b"];
+  parser [label="Уніфікований парсер → проміжне подання у форматі XML (ekg.parsers)",
+          fillcolor="#eaf4ec", color="#3f8a52", width=9];
+
+  filt  [label="Фільтрація\n(signal)", fillcolor="#eef3fb", color="#2c5d9b"];
+  rpeak [label="Детекція R-піків\n(AdvancedRPeak)", fillcolor="#eef3fb", color="#2c5d9b"];
+  morph [label="Морфологія\n(Morphology)", fillcolor="#eef3fb", color="#2c5d9b"];
+  hrv   [label="HRV\n(HRVAnalyzer)", fillcolor="#eef3fb", color="#2c5d9b"];
+
+  win  [label="Сегментація ударів (windows)\n260 відліків навколо R-піка",
+        fillcolor="#eef3fb", color="#2c5d9b", width=4];
+  feat [label="Витяг ознак (handcrafted)\n35 / 70-вимірний вектор",
+        fillcolor="#eef3fb", color="#2c5d9b", width=4];
+
+  rf  [label="RF", fillcolor="#eef3fb", color="#2c5d9b"];
+  xgb [label="XGBoost", fillcolor="#eef3fb", color="#2c5d9b"];
+  svm [label="SVM-RBF", fillcolor="#eef3fb", color="#2c5d9b"];
+  cnn [label="1D-CNN /\nCNN-BiLSTM", fillcolor="#fbeeee", color="#b03030"];
+  hyb [label="Гібрид\n(новизна 1)", fillcolor="#f6e8fb", color="#7a4a8a"];
+
+  result [label="Класифікація удару:  N / S / V / F / Q",
+          fillcolor="#fff7e0", color="#b58a00", width=6];
+
+  api [label="REST API (FastAPI)\n/classify · /models · /health",
+       fillcolor="#f3f0e8", color="#8a7a4a"];
+  cli [label="CLI (ekg)\nparse · train · evaluate · benchmark · serve",
+       fillcolor="#f3f0e8", color="#8a7a4a"];
+
+  input -> detect -> parser;
+  parser -> filt; parser -> rpeak; parser -> morph; parser -> hrv;
+  filt -> win; rpeak -> win; morph -> feat; hrv -> feat;
+  win -> cnn; win -> hyb;
+  feat -> rf; feat -> xgb; feat -> svm; feat -> hyb;
+  rf -> result; xgb -> result; svm -> result; cnn -> result; hyb -> result;
+  result -> api; result -> cli;
+
+  { rank=same; filt; rpeak; morph; hrv; }
+  { rank=same; win; feat; }
+  { rank=same; rf; xgb; svm; cnn; hyb; }
+  { rank=same; api; cli; }
+}
